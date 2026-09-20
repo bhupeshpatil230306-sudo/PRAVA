@@ -221,15 +221,12 @@ python -m venv venv
 venv\Scripts\activate
 
 pip install -r requirements.txt
- 
-## Frontend
-cd frontend
-
-npm install
-
 
 ## Frontend
 PRAVA Web Application
+cd frontend
+
+npm install
 
 https://prava-1-30hu.onrender.com
 
