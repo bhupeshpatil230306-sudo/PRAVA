@@ -203,32 +203,6 @@ POST /disease-diagnosis
 POST /agro-advisory
 GET  /weather
 
-## Project Structure
-PRAVA/
-│
-├── backend/
-│   ├── main.py
-│   ├── train_model.py
-│   ├── crop_model.pkl
-│   ├── requirements.txt
-│   └── .gitignore
-│
-├── data/
-│   └── Crop_recommendation.csv
-│
-├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   │   ├── CropRecommendation.js
-│   │   │   ├── DiseaseDiagnosis.js
-│   │   │   └── AgroAdvisory.js
-│   │   ├── App.js
-│   │   ├── App.css
-│   │   └── index.css
-│   ├── public/
-│   └── package.json
-│
-└── .gitignore
 
 ## Impact Vision
 PRAVA aims to turn complex agricultural information into simple, actionable decisions.
