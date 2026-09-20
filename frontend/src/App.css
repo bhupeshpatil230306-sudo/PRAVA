@@ -1,0 +1,1527 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f8f2;
+  color: #17251a;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+/* NAVBAR */
+nav {
+  padding: 20px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #dfe8dd;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+nav h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #1f5f2b;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #315d38;
+  font-weight: 600;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.nav-links a:hover {
+  color: #287a36;
+}
+
+/* HERO */
+.hero {
+  max-width: 1200px;
+  margin: auto;
+  padding: 90px 6% 70px;
+}
+
+.tag {
+  color: #287a36;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  margin-bottom: 15px;
+}
+
+.hero h1 {
+  font-size: 64px;
+  line-height: 1.05;
+  max-width: 800px;
+  margin: 0 0 22px;
+}
+
+.hero p:last-child {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #667267;
+  max-width: 650px;
+}
+
+/* HOME FEATURES */
+.features {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px 6% 90px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+.card {
+  background: white;
+  padding: 36px;
+  min-height: 240px;
+  border-radius: 22px;
+  border: 1px solid #dfe8dd;
+  box-shadow: 0 8px 30px rgba(40, 90, 45, 0.07);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 35px rgba(40, 90, 45, 0.12);
+}
+
+.icon {
+  font-size: 40px;
+}
+
+.card h3 {
+  font-size: 24px;
+  margin: 20px 0 10px;
+}
+
+.card p {
+  color: #68736a;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+/* BUTTON */
+button {
+  border: none;
+  background: #287a36;
+  color: white;
+  padding: 13px 22px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+button:hover {
+  background: #1f642b;
+  transform: translateY(-1px);
+}
+
+/* FORM PAGES */
+.form-section {
+  max-width: 1100px;
+  margin: auto;
+  padding: 75px 6% 100px;
+}
+
+.form-section h1 {
+  font-size: 52px;
+  line-height: 1.1;
+  margin: 10px 0 18px;
+}
+
+.form-section > p:not(.tag) {
+  color: #68736a;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+/* FORM CARD */
+.form-card {
+  background: white;
+  padding: 42px;
+  margin-top: 40px;
+  border-radius: 24px;
+  border: 1px solid #dfe8dd;
+  box-shadow: 0 10px 35px rgba(40, 90, 45, 0.08);
+}
+
+.form-card h2 {
+  font-size: 26px;
+  margin-top: 0;
+}
+
+.form-card label {
+  display: block;
+  margin: 20px 0 8px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.form-card input,
+.form-card select {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #ccd5cc;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #fbfdfb;
+}
+
+.form-card input:focus,
+.form-card select:focus {
+  outline: none;
+  border-color: #287a36;
+  box-shadow: 0 0 0 3px rgba(40, 122, 54, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.recommend-btn {
+  margin-top: 30px;
+  padding: 15px 26px;
+  font-size: 16px;
+}
+
+/* RESULTS */
+.result-card {
+  margin-top: 30px;
+  padding: 30px;
+  background: #eef7ed;
+  border-radius: 20px;
+  border: 1px solid #cfe2cc;
+  box-shadow: 0 8px 25px rgba(40, 90, 45, 0.06);
+}
+
+.result-card h2 {
+  margin-top: 0;
+  font-size: 26px;
+}
+
+.result-card h3 {
+  font-size: 34px;
+  color: #287a36;
+  margin: 12px 0 20px;
+}
+
+.result-card h4 {
+  font-size: 18px;
+  margin-top: 25px;
+}
+
+.result-card p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #4f5d51;
+}
+
+.diagnosis-details {
+  font-size: 16px;
+}
+
+/* MOBILE */
+@media (max-width: 800px) {
+  nav {
+    padding: 18px 5%;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .nav-links {
+    gap: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero {
+    padding: 60px 5% 45px;
+  }
+
+  .hero h1 {
+    font-size: 44px;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+    padding: 20px 5% 60px;
+  }
+
+  .form-section {
+    padding: 50px 5% 70px;
+  }
+
+  .form-section h1 {
+    font-size: 42px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .form-card {
+    padding: 26px;
+  }
+}
+
+@media (max-width: 500px) {
+  .hero h1 {
+    font-size: 36px;
+  }
+
+  .form-section h1 {
+    font-size: 36px;
+  }
+
+  .card {
+    padding: 28px;
+  }
+
+  .nav-links {
+    gap: 12px;
+  }
+}
+
+/* HOME HERO */
+.home-hero {
+  max-width: 1250px;
+  min-height: 520px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 60px;
+}
+
+.home-hero h1 {
+  font-size: 70px;
+  line-height: 1.02;
+  margin: 15px 0 25px;
+}
+
+.home-hero h1 span {
+  color: #287a36;
+}
+
+.hero-content > p:not(.tag) {
+  max-width: 650px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.hero-actions a {
+  text-decoration: none;
+}
+
+.secondary-btn {
+  color: #287a36;
+  font-weight: 600;
+  padding: 13px 20px;
+}
+
+/* HERO VISUAL */
+.hero-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.visual-card {
+  width: 360px;
+  min-height: 330px;
+  padding: 40px;
+  border-radius: 30px;
+  background: white;
+  border: 1px solid #dfe8dd;
+  box-shadow: 0 20px 50px rgba(40, 90, 45, 0.12);
+}
+
+.visual-icon {
+  font-size: 65px;
+  margin-bottom: 20px;
+}
+
+.visual-card h3 {
+  font-size: 28px;
+  margin: 0 0 10px;
+}
+
+.visual-card p {
+  color: #68736a;
+  line-height: 1.5;
+}
+
+.intelligence-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.intelligence-row span {
+  padding: 12px;
+  background: #f1f7ef;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* MOBILE HERO */
+@media (max-width: 800px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: 35px;
+  }
+
+  .home-hero h1 {
+    font-size: 48px;
+  }
+
+  .hero-actions {
+    flex-wrap: wrap;
+  }
+
+  .hero-visual {
+    justify-content: flex-start;
+  }
+
+  .visual-card {
+    width: 100%;
+  }
+}
+
+/* CROP RECOMMENDATION */
+.crop-page {
+  max-width: 1050px;
+}
+
+.crop-page .form-card {
+  padding: 45px;
+}
+
+.crop-page .form-card::before {
+  content: "🌱  FARM CONDITION ANALYSIS";
+  display: block;
+  color: #287a36;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1.2px;
+  margin-bottom: 25px;
+}
+
+.crop-page .recommend-btn {
+  width: 100%;
+  font-size: 17px;
+  padding: 17px;
+}
+
+.crop-page .result-card {
+  padding: 35px;
+  margin-top: 35px;
+}
+
+.crop-page .result-card h3 {
+  font-size: 40px;
+}
+
+/* =========================================
+   PRAVA PREMIUM HOME
+========================================= */
+
+.home-page {
+  min-height: 100vh;
+  background-color: #edf5ea;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center top;
+  overflow-x: hidden;
+}
+
+/* NAVBAR */
+
+.home-page nav {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(30, 70, 40, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.home-page nav h2 {
+  font-size: 27px;
+  letter-spacing: 0.5px;
+}
+
+/* HERO */
+
+.home-page .home-hero {
+  max-width: 1450px;
+  min-height: 650px;
+  width: 100%;
+  margin: 0 auto;
+
+  padding: 75px 7% 120px;
+
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 60px;
+}
+
+/* HERO TEXT */
+
+.home-page .home-hero h1 {
+  font-size: clamp(52px, 5vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -2px;
+  margin: 15px 0 25px;
+  color: #10352b;
+}
+
+.home-page .home-hero h1 span {
+  color: #239447;
+}
+
+.home-page .hero-content > p:not(.tag) {
+  max-width: 650px;
+  color: #425c55;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+/* HERO BUTTONS */
+
+.home-page .hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.home-page .hero-actions button {
+  padding: 15px 28px;
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(40, 122, 54, 0.2);
+}
+
+.home-page .secondary-btn {
+  color: #287a36;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #8bb79a;
+  border-radius: 12px;
+  padding: 14px 24px;
+}
+
+/* INTELLIGENCE CARD */
+
+.home-page .hero-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.home-page .visual-card {
+  width: 410px;
+  min-height: 390px;
+  padding: 38px;
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 30px;
+
+  box-shadow: 0 25px 70px rgba(27, 70, 42, 0.18);
+}
+
+.home-page .visual-card h3 {
+  color: #12372e;
+  font-size: 28px;
+}
+
+/* INTELLIGENCE ITEMS */
+
+.home-page .intelligence-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.home-page .intelligence-row span {
+  padding: 15px;
+  background: #f1f7ef;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* FEATURE CARDS */
+
+.home-page .features {
+  position: relative;
+  z-index: 5;
+
+  max-width: 1150px;
+  margin: -90px auto 0;
+  padding: 0 30px 80px;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.home-page .features .card {
+  min-height: 270px;
+
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+
+  box-shadow: 0 20px 55px rgba(25, 70, 40, 0.15);
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.home-page .features .card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 28px 65px rgba(25, 70, 40, 0.2);
+}
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+
+  .home-page .home-hero {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    padding: 55px 5% 110px;
+    gap: 40px;
+  }
+
+  .home-page .home-hero h1 {
+    font-size: 48px;
+  }
+
+  .home-page .hero-actions {
+    flex-wrap: wrap;
+  }
+
+  .home-page .visual-card {
+    width: 100%;
+  }
+
+  .home-page .features {
+    grid-template-columns: 1fr;
+    margin-top: -50px;
+    padding: 0 5% 60px;
+  }
+}
+
+@media (max-width: 500px) {
+
+  .home-page .home-hero h1 {
+    font-size: 38px;
+  }
+
+  .home-page .visual-card {
+    padding: 28px;
+  }
+
+  .home-page .features {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+}
+
+/* =========================================
+   GLOBAL PRAVA BACKGROUND
+========================================= */
+
+.site-background {
+  min-height: 100vh;
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+
+  overflow-x: hidden;
+}
+
+
+/* =========================================
+   PREMIUM NAVIGATION
+========================================= */
+
+.nav-links {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.nav-links a {
+  text-decoration: none;
+
+  color: #315d38;
+  font-weight: 700;
+  font-size: 14px;
+
+  padding: 10px 17px;
+
+  border-radius: 999px;
+
+  background: rgba(239, 247, 238, 0.75);
+  border: 1px solid rgba(40, 122, 54, 0.08);
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: white;
+  background: #287a36;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 7px 18px rgba(40, 122, 54, 0.22);
+}
+
+.nav-links a.active {
+  color: white;
+  background: #287a36;
+
+  box-shadow: 0 6px 18px rgba(40, 122, 54, 0.20);
+}
+
+
+/* =========================================
+   NON-HOME PAGES
+========================================= */
+
+.app:not(.home-page) {
+  min-height: 100vh;
+
+  background:
+    linear-gradient(
+      rgba(240, 247, 237, 0.78),
+      rgba(240, 247, 237, 0.82)
+    );
+
+  backdrop-filter: blur(1px);
+}
+
+
+/* =========================================
+   PREMIUM FORM PAGES
+========================================= */
+
+.app:not(.home-page) .form-section {
+  max-width: 1100px;
+
+  padding-top: 80px;
+  padding-bottom: 100px;
+}
+
+
+/* PAGE HEADINGS */
+
+.app:not(.home-page) .form-section h1 {
+  color: #12372e;
+
+  font-size: clamp(46px, 5vw, 68px);
+
+  letter-spacing: -2px;
+}
+
+.app:not(.home-page) .form-section > p {
+  color: #456057;
+}
+
+
+/* FORM CARD */
+
+.app:not(.home-page) .form-card {
+  background: rgba(255, 255, 255, 0.93);
+
+  backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255, 255, 255, 0.9);
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 25px 70px rgba(25, 70, 40, 0.16);
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.app:not(.home-page) .form-card:hover {
+  box-shadow:
+    0 30px 80px rgba(25, 70, 40, 0.20);
+}
+
+
+/* INPUTS */
+
+.app:not(.home-page) .form-card input,
+.app:not(.home-page) .form-card select {
+  background: rgba(250, 253, 249, 0.95);
+
+  border: 1px solid #cbd9cd;
+
+  transition:
+    border 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.app:not(.home-page) .form-card input:focus,
+.app:not(.home-page) .form-card select:focus {
+  border-color: #287a36;
+
+  box-shadow:
+    0 0 0 4px rgba(40, 122, 54, 0.10);
+}
+
+
+/* BUTTONS */
+
+.app:not(.home-page) button {
+  border-radius: 12px;
+
+  box-shadow:
+    0 8px 20px rgba(40, 122, 54, 0.16);
+}
+
+.app:not(.home-page) button:hover {
+  box-shadow:
+    0 12px 25px rgba(40, 122, 54, 0.24);
+}
+
+
+/* RESULT CARD */
+
+.app:not(.home-page) .result-card {
+  background: rgba(238, 247, 237, 0.94);
+
+  backdrop-filter: blur(12px);
+
+  border-radius: 24px;
+
+  box-shadow:
+    0 18px 50px rgba(25, 70, 40, 0.12);
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 800px) {
+
+  .nav-links {
+    gap: 6px;
+  }
+
+  .nav-links a {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .app:not(.home-page) .form-section {
+    padding-top: 55px;
+  }
+
+}
+
+/* =========================================
+   FINAL PRAVA PAGE POLISH
+========================================= */
+
+/* Keep farm background visible but stronger */
+.app:not(.home-page) {
+  background: linear-gradient(
+    rgba(242, 248, 240, 0.68),
+    rgba(242, 248, 240, 0.72)
+  );
+}
+
+/* Better page heading position */
+.app:not(.home-page) .hero {
+  max-width: 1100px;
+  padding: 65px 6% 25px;
+  margin: 0 auto;
+}
+
+.app:not(.home-page) .hero h1 {
+  font-size: clamp(42px, 5vw, 64px);
+  line-height: 1.08;
+  margin: 12px 0 16px;
+  color: #12372e;
+}
+
+.app:not(.home-page) .hero p:not(.tag) {
+  font-size: 17px;
+  color: #52675e;
+  max-width: 650px;
+}
+
+/* Bring form cards closer to heading */
+.app:not(.home-page) .form-section {
+  max-width: 1100px;
+  padding: 25px 6% 90px;
+  margin: 0 auto;
+}
+
+/* Premium cards */
+.app:not(.home-page) .form-card {
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 20px 60px rgba(25, 70, 40, 0.18);
+  border: 1px solid rgba(255,255,255,0.95);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.app:not(.home-page) .form-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 70px rgba(25, 70, 40, 0.22);
+}
+
+/* Better inputs */
+.app:not(.home-page) .form-card input,
+.app:not(.home-page) .form-card select {
+  border-radius: 10px;
+  background: rgba(250,253,249,0.96);
+}
+
+/* Better buttons */
+.app:not(.home-page) button {
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.app:not(.home-page) button:hover {
+  transform: translateY(-2px);
+}
+
+/* Result cards */
+.app:not(.home-page) .result-card {
+  border-radius: 24px;
+  background: rgba(245, 251, 243, 0.95);
+  box-shadow: 0 18px 50px rgba(25,70,40,0.15);
+}
+
+/* Navigation polish */
+.nav-links {
+  gap: 9px;
+}
+
+.nav-links a {
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: rgba(239,247,238,0.85);
+  border: 1px solid rgba(40,122,54,0.10);
+  color: #315d38;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: white;
+  background: #287a36;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 18px rgba(40,122,54,0.22);
+}
+
+.nav-links a.active {
+  color: white;
+  background: #287a36;
+  box-shadow: 0 7px 18px rgba(40,122,54,0.22);
+}
+
+/* Mobile */
+@media (max-width: 800px) {
+  .app:not(.home-page) .hero {
+    padding: 45px 6% 20px;
+  }
+
+  .app:not(.home-page) .form-section {
+    padding-top: 15px;
+  }
+
+  .nav-links {
+    gap: 5px;
+  }
+
+  .nav-links a {
+    padding: 8px 11px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================
+   DISEASE + ADVISORY FORM POLISH
+========================================= */
+
+/* Disease upload area */
+.app:not(.home-page) input[type="file"] {
+  width: 100%;
+  padding: 14px;
+  border: 1px dashed #9fbea4;
+  border-radius: 12px;
+  background: #f7fbf6;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.app:not(.home-page) input[type="file"]:hover {
+  border-color: #287a36;
+  background: #f0f8ef;
+}
+
+/* Make form cards comfortable */
+.app:not(.home-page) .form-card {
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* Advisory form */
+.app:not(.home-page) .form-card input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Result emphasis */
+.app:not(.home-page) .result-card h2 {
+  color: #12372e;
+}
+
+.app:not(.home-page) .result-card strong {
+  color: #287a36;
+}
+
+/* =========================================
+   CROP AI INTELLIGENCE
+========================================= */
+
+.intelligence-strip {
+  max-width: 1100px;
+  margin: 5px auto 20px;
+  padding: 0 6%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.intel-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.82);
+  border: 1px solid rgba(255,255,255,0.9);
+  box-shadow: 0 8px 25px rgba(25,70,40,0.10);
+}
+
+.intel-card > span {
+  font-size: 24px;
+}
+
+.intel-card strong {
+  display: block;
+  color: #183c30;
+  font-size: 13px;
+}
+
+.intel-card small {
+  color: #718078;
+  font-size: 11px;
+}
+
+.card-label {
+  color: #287a36;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.ai-result {
+  max-width: 650px;
+  margin: 25px auto 0;
+  padding: 28px;
+  border-radius: 26px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 20px 60px rgba(25,70,40,0.18);
+}
+
+.crop-result-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 18px 0;
+}
+
+.crop-icon {
+  font-size: 42px;
+}
+
+.crop-result-header small {
+  color: #718078;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.crop-result-header h2 {
+  margin: 3px 0;
+  font-size: 30px;
+  color: #12372e;
+  text-transform: capitalize;
+}
+
+.score-badge {
+  margin-left: auto;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #e8f5e8;
+  color: #287a36;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.reason-box {
+  padding: 18px;
+  border-radius: 16px;
+  background: #f1f8ef;
+}
+
+.reason-box h3 {
+  margin-top: 0;
+  color: #183c30;
+  font-size: 16px;
+}
+
+.reason-box p {
+  color: #53665d;
+  line-height: 1.6;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tips-grid > div {
+  padding: 16px;
+  border-radius: 16px;
+  background: #f8fbf7;
+}
+
+.tips-grid span {
+  font-size: 22px;
+}
+
+.tips-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: #183c30;
+}
+
+.tips-grid p {
+  color: #68776f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 800px) {
+  .intelligence-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tips-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================
+   DISEASE AI HEALTH SCANNER
+========================================= */
+
+.disease-upload-card {
+  max-width: 650px !important;
+}
+
+.upload-zone {
+  display: block;
+  text-align: center;
+  padding: 38px 20px;
+  border: 2px dashed #a9c7ad;
+  border-radius: 20px;
+  background: #f7fbf6;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.upload-zone:hover {
+  border-color: #287a36;
+  background: #eef8ed;
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.upload-zone h3 {
+  margin: 5px 0;
+  color: #183c30;
+  font-size: 20px;
+}
+
+.upload-zone p {
+  color: #718078;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.upload-zone input {
+  display: none;
+}
+
+.upload-button {
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: #287a36;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* IMAGE PREVIEW */
+
+.image-preview-container {
+  text-align: center;
+}
+
+.crop-preview {
+  display: block;
+  width: 100%;
+  max-height: 330px;
+  object-fit: contain;
+  border-radius: 18px;
+  margin-bottom: 15px;
+  background: #f4f8f2;
+}
+
+.change-image {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 9px;
+  background: #edf6eb;
+  color: #287a36;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.change-image input {
+  display: none;
+}
+
+/* RESULT */
+
+.disease-result {
+  max-width: 650px;
+}
+
+.disease-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.health-icon {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: #edf7eb;
+  font-size: 28px;
+}
+
+.disease-header small,
+.condition-box small {
+  color: #718078;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .7px;
+}
+
+.disease-header h2 {
+  margin: 3px 0;
+  color: #12372e;
+  text-transform: capitalize;
+}
+
+.condition-box {
+  padding: 18px;
+  border-radius: 16px;
+  background: #f1f8ef;
+  margin-bottom: 12px;
+}
+
+.condition-box h2 {
+  margin: 7px 0 0;
+  color: #287a36;
+}
+
+.ai-disclaimer {
+  margin-top: 20px;
+  font-size: 11px;
+  color: #7b8780;
+  text-align: center;
+}
+
+/* =========================================
+   AGRO ADVISORY DASHBOARD
+========================================= */
+
+.advisory-card {
+  max-width: 650px !important;
+}
+
+.advisory-card h2 {
+  color: #183c30;
+  margin: 8px 0 22px;
+}
+
+.advisory-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.advisory-inputs label {
+  display: block;
+  margin-bottom: 7px;
+  color: #30453b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.advisory-inputs input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* WEATHER */
+
+.weather-dashboard {
+  max-width: 650px;
+  margin: 25px auto 0;
+  padding: 25px;
+  border-radius: 25px;
+  background: rgba(255,255,255,0.94);
+  box-shadow: 0 18px 55px rgba(25,70,40,0.15);
+}
+
+.weather-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.weather-heading h2 {
+  margin: 4px 0 15px;
+  color: #183c30;
+}
+
+.weather-heading > span {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e8f5e8;
+  color: #287a36;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.weather-card {
+  padding: 18px;
+  border-radius: 17px;
+  background: #f2f8f0;
+}
+
+.weather-card span {
+  display: block;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.weather-card small {
+  display: block;
+  color: #718078;
+  font-size: 11px;
+}
+
+.weather-card strong {
+  display: block;
+  margin-top: 5px;
+  color: #183c30;
+  font-size: 22px;
+}
+
+/* AI ADVISORY */
+
+.advisory-result {
+  max-width: 650px;
+}
+
+.advisory-status {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 18px;
+  margin: 18px 0 12px;
+  border-radius: 17px;
+  background: #eff8ed;
+}
+
+.advisory-status > span {
+  font-size: 35px;
+}
+
+.advisory-status small {
+  color: #718078;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.advisory-status h2 {
+  margin: 5px 0 0;
+  color: #287a36;
+  font-size: 20px;
+}
+
+.advice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.advice-grid > div {
+  padding: 18px;
+  border-radius: 17px;
+  background: #f8fbf7;
+}
+
+.advice-grid span {
+  font-size: 23px;
+}
+
+.advice-grid strong {
+  display: block;
+  margin-top: 8px;
+  color: #183c30;
+}
+
+.advice-grid p,
+.warning-box p {
+  color: #65756c;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.warning-box {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 17px;
+  border-radius: 17px;
+  background: #fff8e8;
+}
+
+.warning-box > span {
+  font-size: 23px;
+}
+
+.warning-box strong {
+  color: #765b20;
+}
+
+@media (max-width: 700px) {
+  .advisory-inputs,
+  .weather-grid,
+  .advice-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================
+   PRAVA LANGUAGE BUTTON
+========================================= */
+
+.language-btn {
+  margin-left: 5px;
+  padding: 9px 15px !important;
+  border-radius: 999px !important;
+  background: #183c30 !important;
+  color: white !important;
+  border: none !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(24,60,48,0.18);
+}
+
+.language-btn:hover {
+  background: #287a36 !important;
+  transform: translateY(-2px);
+}
