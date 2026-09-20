@@ -228,11 +228,14 @@ npm install
 
 ## Frontend
 PRAVA Web Application
+
 https://prava-1-30hu.onrender.com
 
 ## Backend API
 PRAVA FastAPI Backend
+
 https://prava-ntpx.onrender.com
+
 npm start
 
 
