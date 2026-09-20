@@ -20,7 +20,7 @@ function AgroAdvisory() {
 
     try {
       const weatherResponse = await fetch(
-        `http://127.0.0.1:8000/weather?location=${encodeURIComponent(location)}`
+        `https://prava-ntpx.onrender.com/weather?location=${encodeURIComponent(location)}`
       );
 
       const weatherData = await weatherResponse.json();
@@ -34,7 +34,7 @@ function AgroAdvisory() {
       setWeather(weatherData);
 
       const advisoryResponse = await fetch(
-        "http://127.0.0.1:8000/agro-advisory",
+        "https://prava-ntpx.onrender.com/agro-advisory",
         {
           method: "POST",
           headers: {

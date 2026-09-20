@@ -28,7 +28,7 @@ function CropRecommendation() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/crop-recommendation",
+        "https://prava-ntpx.onrender.com/crop-recommendation",
         {
           method: "POST",
           headers: {

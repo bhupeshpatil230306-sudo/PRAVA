@@ -31,7 +31,7 @@ function DiseaseDiagnosis() {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/disease-diagnosis",
+        "https://prava-ntpx.onrender.com/disease-diagnosis",
         {
           method: "POST",
           body: formData,
