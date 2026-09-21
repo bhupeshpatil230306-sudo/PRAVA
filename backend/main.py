@@ -81,16 +81,15 @@ Return ONLY valid JSON:
 Keep the response concise.
 """
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
+    response = client.interactions.create(
+        model="gemini-3.6-flash",
+        input=prompt
     )
 
     return {
         "recommended_crop": prediction,
-        "ai_advice": response.text
+        "ai_advice": response.output_text
     }
-
 @app.post("/disease-diagnosis")
 async def disease_diagnosis(file: UploadFile = File(...)):
 
