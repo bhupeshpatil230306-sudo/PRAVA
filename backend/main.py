@@ -17,7 +17,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+    "http://localhost:3000",
+    "https://prava-1-30hu.onrender.com"
+],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
