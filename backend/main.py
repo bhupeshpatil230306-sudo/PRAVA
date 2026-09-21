@@ -3,26 +3,28 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
-from google.genai import types
 import joblib
 import os
 import urllib.parse
 import urllib.request
 import json
+import base64
 
-# =========================
+# =========================================================
 # ENVIRONMENT
-# =========================
+# =========================================================
 
 load_dotenv()
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# =========================
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+GEMINI_MODEL = "gemini-3.6-flash"
+
+# =========================================================
 # APP
-# =========================
+# =========================================================
 
 app = FastAPI()
 
@@ -34,15 +36,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================
+# =========================================================
 # ML MODEL
-# =========================
+# =========================================================
 
 model = joblib.load("crop_model.pkl")
 
-# =========================
+
+# =========================================================
 # ROOT
-# =========================
+# =========================================================
 
 @app.get("/")
 def root():
@@ -51,9 +54,10 @@ def root():
         "status": "online"
     }
 
-# =========================
+
+# =========================================================
 # CROP RECOMMENDATION
-# =========================
+# =========================================================
 
 class CropRequest(BaseModel):
     N: float
@@ -94,60 +98,62 @@ Humidity: {data.humidity} %
 Soil pH: {data.ph}
 Rainfall: {data.rainfall} mm
 
-Explain briefly why {prediction} is suitable.
+Explain briefly why this crop is suitable.
 
-Give two practical farming tips.
+Return ONLY valid JSON:
 
-Keep the response short and farmer-friendly.
+{{
+  "why_recommended": "short explanation",
+  "tip_1": "one practical farming tip",
+  "tip_2": "one practical farming tip"
+}}
+
+Keep it short and farmer-friendly.
 """
 
-    interaction = client.interactions.create(
-        model="gemini-3.6-flash",
-        input=prompt,
-        response_format={
-            "type": "text",
-            "mime_type": "application/json",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "why_recommended": {
-                        "type": "string"
-                    },
-                    "tip_1": {
-                        "type": "string"
-                    },
-                    "tip_2": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "why_recommended",
-                    "tip_1",
-                    "tip_2"
-                ]
-            }
-        }
-    )
+    try:
+        response = client.interactions.create(
+            model=GEMINI_MODEL,
+            input=prompt
+        )
+
+        ai_text = response.output_text
+
+    except Exception as e:
+        print("Gemini Crop Error:", e)
+
+        ai_text = json.dumps({
+            "why_recommended": (
+                f"{prediction} was selected by PRAVA's crop recommendation "
+                "model based on the provided soil and climate conditions."
+            ),
+            "tip_1": "Monitor soil moisture regularly.",
+            "tip_2": "Adjust fertilizer use according to soil conditions."
+        })
 
     return {
         "recommended_crop": prediction,
-        "ai_advice": interaction.output_text
+        "ai_advice": ai_text
     }
 
 
-# =========================
+# =========================================================
 # DISEASE DIAGNOSIS
-# =========================
+# =========================================================
 
 @app.post("/disease-diagnosis")
 async def disease_diagnosis(file: UploadFile = File(...)):
 
     image_bytes = await file.read()
 
-    prompt = """
-Analyze this crop or leaf image for agricultural disease diagnosis.
+    mime_type = file.content_type or "image/jpeg"
 
-Return ONLY JSON with:
+    image_base64 = base64.b64encode(image_bytes).decode("utf-8")
+
+    prompt = """
+Analyze this crop/leaf image for agricultural disease diagnosis.
+
+Return ONLY valid JSON:
 
 {
   "crop": "crop name",
@@ -163,59 +169,44 @@ If the crop or condition cannot be identified reliably,
 use "Unclear".
 """
 
-    image_part = types.Part.from_bytes(
-        data=image_bytes,
-        mime_type=file.content_type or "image/jpeg"
-    )
-
-    interaction = client.interactions.create(
-        model="gemini-3.6-flash",
-        input=[
-            image_part,
-            prompt
-        ],
-        response_format={
-            "type": "text",
-            "mime_type": "application/json",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "crop": {
-                        "type": "string"
-                    },
-                    "condition": {
-                        "type": "string"
-                    },
-                    "symptoms": {
-                        "type": "string"
-                    },
-                    "action_1": {
-                        "type": "string"
-                    },
-                    "action_2": {
-                        "type": "string"
-                    }
+    try:
+        response = client.interactions.create(
+            model=GEMINI_MODEL,
+            input=[
+                {
+                    "type": "image",
+                    "mime_type": mime_type,
+                    "data": image_base64
                 },
-                "required": [
-                    "crop",
-                    "condition",
-                    "symptoms",
-                    "action_1",
-                    "action_2"
-                ]
-            }
-        }
-    )
+                {
+                    "type": "text",
+                    "text": prompt
+                }
+            ]
+        )
+
+        diagnosis = response.output_text
+
+    except Exception as e:
+        print("Gemini Disease Error:", e)
+
+        diagnosis = json.dumps({
+            "crop": "Unclear",
+            "condition": "Unable to analyze",
+            "symptoms": "AI diagnosis is temporarily unavailable.",
+            "action_1": "Inspect the crop manually for visible symptoms.",
+            "action_2": "Consult a local agricultural expert if symptoms continue."
+        })
 
     return {
-        "diagnosis": interaction.output_text,
-        "model_used": "gemini-3.6-flash"
+        "diagnosis": diagnosis,
+        "model_used": GEMINI_MODEL
     }
 
 
-# =========================
+# =========================================================
 # WEATHER
-# =========================
+# =========================================================
 
 @app.get("/weather")
 def get_weather(location: str):
@@ -246,7 +237,6 @@ def get_weather(location: str):
         )
 
         try:
-
             with urllib.request.urlopen(geo_url) as response:
                 geo_data = json.loads(response.read())
 
@@ -265,7 +255,8 @@ def get_weather(location: str):
                 place = results[0]
                 break
 
-        except Exception:
+        except Exception as e:
+            print("Geocoding error:", e)
             continue
 
     if not place:
@@ -284,22 +275,32 @@ def get_weather(location: str):
         "&timezone=auto"
     )
 
-    with urllib.request.urlopen(weather_url) as response:
-        weather_data = json.loads(response.read())
+    try:
 
-    current = weather_data["current"]
+        with urllib.request.urlopen(weather_url) as response:
+            weather_data = json.loads(response.read())
 
-    return {
-        "location": place["name"],
-        "temperature": current["temperature_2m"],
-        "humidity": current["relative_humidity_2m"],
-        "rainfall": current["rain"]
-    }
+        current = weather_data["current"]
+
+        return {
+            "location": place["name"],
+            "temperature": current["temperature_2m"],
+            "humidity": current["relative_humidity_2m"],
+            "rainfall": current["rain"]
+        }
+
+    except Exception as e:
+
+        print("Weather error:", e)
+
+        return {
+            "error": "Weather service unavailable"
+        }
 
 
-# =========================
+# =========================================================
 # AGRO ADVISORY
-# =========================
+# =========================================================
 
 class AdvisoryRequest(BaseModel):
     crop: str
@@ -321,57 +322,46 @@ Temperature: {data.temperature} °C
 Humidity: {data.humidity} %
 Rainfall: {data.rainfall} mm
 
-Give practical advice for the farmer based on these conditions.
+Give practical advice based on these conditions.
 
-Return JSON with:
+Return ONLY valid JSON:
 
-status:
-Short overall farm condition.
+{{
+  "status": "short overall condition",
+  "advice_1": "one practical action",
+  "advice_2": "one practical action",
+  "warning": "one important warning"
+}}
 
-advice_1:
-One practical action.
-
-advice_2:
-One practical action.
-
-warning:
-One important warning.
-
-Keep everything concise and farmer-friendly.
+Keep it short and farmer-friendly.
 """
 
-    interaction = client.interactions.create(
-        model="gemini-3.6-flash",
-        input=prompt,
-        response_format={
-            "type": "text",
-            "mime_type": "application/json",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "status": {
-                        "type": "string"
-                    },
-                    "advice_1": {
-                        "type": "string"
-                    },
-                    "advice_2": {
-                        "type": "string"
-                    },
-                    "warning": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "status",
-                    "advice_1",
-                    "advice_2",
-                    "warning"
-                ]
-            }
-        }
-    )
+    try:
+
+        response = client.interactions.create(
+            model=GEMINI_MODEL,
+            input=prompt
+        )
+
+        advisory = response.output_text
+
+    except Exception as e:
+
+        print("Gemini Advisory Error:", e)
+
+        advisory = json.dumps({
+            "status": "Farm conditions analyzed",
+            "advice_1": (
+                f"Monitor {data.crop} closely according to current weather."
+            ),
+            "advice_2": (
+                "Maintain appropriate soil moisture and avoid unnecessary irrigation."
+            ),
+            "warning": (
+                "Weather conditions can change quickly; check local forecasts regularly."
+            )
+        })
 
     return {
-        "advisory": interaction.output_text
+        "advisory": advisory
     }
