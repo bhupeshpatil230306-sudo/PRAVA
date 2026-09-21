@@ -140,36 +140,44 @@ Keep it short and farmer-friendly.
 # =========================================================
 # DISEASE DIAGNOSIS
 # =========================================================
-
 @app.post("/disease-diagnosis")
 async def disease_diagnosis(file: UploadFile = File(...)):
 
     image_bytes = await file.read()
 
     mime_type = file.content_type or "image/jpeg"
-
     image_base64 = base64.b64encode(image_bytes).decode("utf-8")
 
     prompt = """
-Analyze this crop/leaf image for agricultural disease diagnosis.
+Analyze this crop or leaf image carefully.
 
-Return ONLY valid JSON:
+Identify:
+- crop name
+- visible disease or healthy condition
+- visible symptoms
+- two practical actions
+
+Return ONLY a JSON object.
+Do not use markdown.
+Do not use ```json.
+Do not add any explanation outside the JSON.
+
+Required format:
 
 {
   "crop": "crop name",
   "condition": "disease name or Healthy",
-  "symptoms": "short description",
+  "symptoms": "short description of visible symptoms",
   "action_1": "practical action",
   "action_2": "practical action"
 }
 
-Keep every value short and farmer-friendly.
-
-If the crop or condition cannot be identified reliably,
-use "Unclear".
+If the crop cannot be identified reliably, use "Unknown".
+If no disease is visible, use "Healthy".
 """
 
     try:
+
         response = client.interactions.create(
             model="gemini-3.8-flash",
             input=[
@@ -185,24 +193,42 @@ use "Unclear".
             ]
         )
 
-        diagnosis = response.output_text
+        raw_text = response.output_text.strip()
+
+        # Remove markdown code fences if Gemini adds them
+        if raw_text.startswith("```"):
+            raw_text = raw_text.replace("```json", "")
+            raw_text = raw_text.replace("```", "")
+            raw_text = raw_text.strip()
+
+        # Convert Gemini text into real JSON
+        diagnosis = json.loads(raw_text)
+
+        # Ensure required fields exist
+        diagnosis = {
+            "crop": diagnosis.get("crop", "Unknown"),
+            "condition": diagnosis.get("condition", "Unclear"),
+            "symptoms": diagnosis.get("symptoms", "No clear symptoms identified."),
+            "action_1": diagnosis.get("action_1", "Monitor the crop regularly."),
+            "action_2": diagnosis.get("action_2", "Consult a local agricultural expert if symptoms continue.")
+        }
 
     except Exception as e:
-        print("Gemini Disease Error:", e)
 
-        diagnosis = json.dumps({
-            "crop": "Unclear",
+        print("Gemini Disease Error:", repr(e))
+
+        diagnosis = {
+            "crop": "Unknown",
             "condition": "Unable to analyze",
             "symptoms": "AI diagnosis is temporarily unavailable.",
             "action_1": "Inspect the crop manually for visible symptoms.",
             "action_2": "Consult a local agricultural expert if symptoms continue."
-        })
+        }
 
     return {
         "diagnosis": diagnosis,
-        "model_used": GEMINI_MODEL
+        "model_used": "gemini-3.8-flash"
     }
-
 
 # =========================================================
 # WEATHER
