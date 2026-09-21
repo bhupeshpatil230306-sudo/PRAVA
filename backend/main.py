@@ -171,7 +171,7 @@ use "Unclear".
 
     try:
         response = client.interactions.create(
-            model=GEMINI_MODEL,
+            model="gemini-3.8-flash",
             input=[
                 {
                     "type": "image",
