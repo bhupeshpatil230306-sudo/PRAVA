@@ -213,77 +213,89 @@ def get_weather(location: str):
 
     location = location.strip()
 
-    candidates = [
-        location,
-        location.split(",")[0].strip(),
-        location.split()[0].strip()
-    ]
+    if not location:
+        return {"error": "Please enter a location"}
 
-    place = None
+    # -----------------------------------------------------
+    # 1. GEOCODING
+    # -----------------------------------------------------
 
-    for candidate in candidates:
+    params = urllib.parse.urlencode({
+        "name": location,
+        "count": 10,
+        "language": "en",
+        "format": "json",
+        "countryCode": "IN"
+    })
 
-        if not candidate:
-            continue
+    geo_url = f"https://geocoding-api.open-meteo.com/v1/search?{params}"
 
-        encoded_location = urllib.parse.quote(candidate)
+    try:
 
-        geo_url = (
-            "https://geocoding-api.open-meteo.com/v1/search"
-            f"?name={encoded_location}"
-            "&count=10"
-            "&language=en"
-            "&format=json"
+        request = urllib.request.Request(
+            geo_url,
+            headers={
+                "User-Agent": "PRAVA-Agricultural-Intelligence/1.0"
+            }
         )
 
-        try:
-            with urllib.request.urlopen(geo_url) as response:
-                geo_data = json.loads(response.read())
+        with urllib.request.urlopen(request, timeout=10) as response:
+            geo_data = json.loads(response.read().decode("utf-8"))
 
-            results = geo_data.get("results", [])
+        results = geo_data.get("results", [])
 
-            india_results = [
-                r for r in results
-                if r.get("country_code") == "IN"
-            ]
+    except Exception as e:
 
-            if india_results:
-                place = india_results[0]
-                break
+        print("Geocoding error:", repr(e))
 
-            if results:
-                place = results[0]
-                break
-
-        except Exception as e:
-            print("Geocoding error:", e)
-            continue
-
-    if not place:
         return {
-            "error": "Location not found"
+            "error": "Unable to search this location"
         }
+
+    if not results:
+        return {
+            "error": f"Location '{location}' not found. Try a city name such as Pune or Kochi."
+        }
+
+    # First Indian matching result
+    place = results[0]
 
     latitude = place["latitude"]
     longitude = place["longitude"]
 
+    # -----------------------------------------------------
+    # 2. WEATHER
+    # -----------------------------------------------------
+
+    weather_params = urllib.parse.urlencode({
+        "latitude": latitude,
+        "longitude": longitude,
+        "current": "temperature_2m,relative_humidity_2m,rain",
+        "timezone": "auto"
+    })
+
     weather_url = (
-        "https://api.open-meteo.com/v1/forecast"
-        f"?latitude={latitude}"
-        f"&longitude={longitude}"
-        "&current=temperature_2m,relative_humidity_2m,rain"
-        "&timezone=auto"
+        f"https://api.open-meteo.com/v1/forecast?{weather_params}"
     )
 
     try:
 
-        with urllib.request.urlopen(weather_url) as response:
-            weather_data = json.loads(response.read())
+        request = urllib.request.Request(
+            weather_url,
+            headers={
+                "User-Agent": "PRAVA-Agricultural-Intelligence/1.0"
+            }
+        )
+
+        with urllib.request.urlopen(request, timeout=10) as response:
+            weather_data = json.loads(response.read().decode("utf-8"))
 
         current = weather_data["current"]
 
         return {
-            "location": place["name"],
+            "location": place.get("name", location),
+            "state": place.get("admin1", ""),
+            "country": place.get("country", "India"),
             "temperature": current["temperature_2m"],
             "humidity": current["relative_humidity_2m"],
             "rainfall": current["rain"]
@@ -291,13 +303,11 @@ def get_weather(location: str):
 
     except Exception as e:
 
-        print("Weather error:", e)
+        print("Weather error:", repr(e))
 
         return {
             "error": "Weather service unavailable"
         }
-
-
 # =========================================================
 # AGRO ADVISORY
 # =========================================================
