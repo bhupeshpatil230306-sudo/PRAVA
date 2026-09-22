@@ -7,8 +7,11 @@ import joblib
 import os
 import urllib.parse
 import urllib.request
+import urllib.error
 import json
 import base64
+import time
+
 
 # =========================================================
 # ENVIRONMENT
@@ -18,15 +21,25 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY is not configured.")
 
-GEMINI_MODEL = "gemini-2.5-flash-lite"
+# Stable, low-cost, multimodal Gemini model
+GEMINI_MODEL = "gemini-3.5-flash-lite"
+
+# 30-second client timeout
+client = genai.Client(
+    api_key=GEMINI_API_KEY,
+    http_options={"timeout": 30000}
+)
+
 
 # =========================================================
 # APP
 # =========================================================
 
-app = FastAPI()
+app = FastAPI(title="PRAVA Agricultural Intelligence")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,6 +48,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # =========================================================
 # ML MODEL
@@ -51,7 +65,8 @@ model = joblib.load("crop_model.pkl")
 def root():
     return {
         "message": "PRAVA Backend is running!",
-        "status": "online"
+        "status": "online",
+        "gemini_model": GEMINI_MODEL
     }
 
 
@@ -82,6 +97,7 @@ def crop_recommendation(data: CropRequest):
         data.rainfall
     ]]
 
+    # ML prediction
     prediction = model.predict(features)[0]
 
     prompt = f"""
@@ -114,13 +130,16 @@ Keep it short and farmer-friendly.
     try:
         response = client.interactions.create(
             model=GEMINI_MODEL,
-            input=prompt
+            input=prompt,
+            generation_config={
+                "thinking_level": "minimal"
+            }
         )
 
-        ai_text = response.output_text
+        ai_text = response.output_text.strip()
 
     except Exception as e:
-        print("Gemini Crop Error:", e)
+        print("Gemini Crop Error:", repr(e))
 
         ai_text = json.dumps({
             "why_recommended": (
@@ -133,19 +152,47 @@ Keep it short and farmer-friendly.
 
     return {
         "recommended_crop": prediction,
-        "ai_advice": ai_text
+        "ai_advice": ai_text,
+        "model_used": GEMINI_MODEL
     }
 
 
 # =========================================================
 # DISEASE DIAGNOSIS
 # =========================================================
+
 @app.post("/disease-diagnosis")
 async def disease_diagnosis(file: UploadFile = File(...)):
 
     image_bytes = await file.read()
 
+    if not image_bytes:
+        return {
+            "diagnosis": {
+                "crop": "Unknown",
+                "condition": "Invalid image",
+                "symptoms": "No image data was received.",
+                "action_1": "Upload a valid crop or leaf image.",
+                "action_2": "Try a clear, well-lit image."
+            },
+            "model_used": GEMINI_MODEL
+        }
+
     mime_type = file.content_type or "image/jpeg"
+
+    # Make sure the uploaded file is actually an image
+    if not mime_type.startswith("image/"):
+        return {
+            "diagnosis": {
+                "crop": "Unknown",
+                "condition": "Invalid file",
+                "symptoms": "The uploaded file is not an image.",
+                "action_1": "Upload a JPG, JPEG, PNG or other image.",
+                "action_2": "Try uploading a clear crop leaf photo."
+            },
+            "model_used": GEMINI_MODEL
+        }
+
     image_base64 = base64.b64encode(image_bytes).decode("utf-8")
 
     prompt = """
@@ -158,9 +205,6 @@ Identify:
 - two practical actions
 
 Return ONLY a JSON object.
-Do not use markdown.
-Do not use ```json.
-Do not add any explanation outside the JSON.
 
 Required format:
 
@@ -172,14 +216,19 @@ Required format:
   "action_2": "practical action"
 }
 
-If the crop cannot be identified reliably, use "Unknown".
-If no disease is visible, use "Healthy".
+Rules:
+- If the crop cannot be identified reliably, use "Unknown".
+- If no disease is visible, use "Healthy".
+- Do not use markdown.
+- Do not use ```json.
+- Do not add explanation outside the JSON.
+- Keep the response short and practical.
 """
 
     try:
 
         response = client.interactions.create(
-            model="gemini-2.5-flash-lite",
+            model=GEMINI_MODEL,
             input=[
                 {
                     "type": "image",
@@ -190,27 +239,37 @@ If no disease is visible, use "Healthy".
                     "type": "text",
                     "text": prompt
                 }
-            ]
+            ],
+            generation_config={
+                "thinking_level": "minimal"
+            }
         )
 
         raw_text = response.output_text.strip()
 
-        # Remove markdown code fences if Gemini adds them
+        # Remove markdown fences if model adds them
         if raw_text.startswith("```"):
             raw_text = raw_text.replace("```json", "")
             raw_text = raw_text.replace("```", "")
             raw_text = raw_text.strip()
 
-        # Convert Gemini text into real JSON
         diagnosis = json.loads(raw_text)
 
-        # Ensure required fields exist
         diagnosis = {
             "crop": diagnosis.get("crop", "Unknown"),
             "condition": diagnosis.get("condition", "Unclear"),
-            "symptoms": diagnosis.get("symptoms", "No clear symptoms identified."),
-            "action_1": diagnosis.get("action_1", "Monitor the crop regularly."),
-            "action_2": diagnosis.get("action_2", "Consult a local agricultural expert if symptoms continue.")
+            "symptoms": diagnosis.get(
+                "symptoms",
+                "No clear symptoms identified."
+            ),
+            "action_1": diagnosis.get(
+                "action_1",
+                "Monitor the crop regularly."
+            ),
+            "action_2": diagnosis.get(
+                "action_2",
+                "Consult a local agricultural expert if symptoms continue."
+            )
         }
 
     except Exception as e:
@@ -222,13 +281,108 @@ If no disease is visible, use "Healthy".
             "condition": "Unable to analyze",
             "symptoms": "AI diagnosis is temporarily unavailable.",
             "action_1": "Inspect the crop manually for visible symptoms.",
-            "action_2": "Consult a local agricultural expert if symptoms continue."
+            "action_2": (
+                "Consult a local agricultural expert if symptoms continue."
+            )
         }
 
     return {
         "diagnosis": diagnosis,
-        "model_used": "gemini-3.8-flash"
+        "model_used": GEMINI_MODEL
     }
+
+
+# =========================================================
+# WEATHER HELPERS
+# =========================================================
+
+def open_meteo_request(url, retries=2):
+
+    for attempt in range(retries + 1):
+
+        try:
+
+            request = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": "PRAVA-Agricultural-Intelligence/1.0"
+                }
+            )
+
+            with urllib.request.urlopen(request, timeout=10) as response:
+                return json.loads(
+                    response.read().decode("utf-8")
+                )
+
+        except urllib.error.HTTPError as e:
+
+            print(
+                f"Weather HTTP error attempt {attempt + 1}: "
+                f"{e.code}"
+            )
+
+            if e.code == 429 and attempt < retries:
+                time.sleep(2 ** attempt)
+                continue
+
+            raise
+
+        except Exception as e:
+
+            print(
+                f"Weather request error attempt {attempt + 1}: "
+                f"{repr(e)}"
+            )
+
+            if attempt < retries:
+                time.sleep(1)
+                continue
+
+            raise
+
+    return None
+
+
+def wttr_weather(location):
+
+    encoded_location = urllib.parse.quote(location)
+
+    url = (
+        f"https://wttr.in/{encoded_location}"
+        "?format=j1"
+    )
+
+    request = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "PRAVA-Agricultural-Intelligence/1.0"
+        }
+    )
+
+    with urllib.request.urlopen(request, timeout=10) as response:
+
+        data = json.loads(
+            response.read().decode("utf-8")
+        )
+
+    current = data["current_condition"][0]
+
+    return {
+        "location": location,
+        "state": "",
+        "country": "India",
+        "temperature": float(
+            current["temp_C"]
+        ),
+        "humidity": float(
+            current["humidity"]
+        ),
+        "rainfall": float(
+            current.get("precipMM", 0)
+        ),
+        "source": "wttr.in"
+    }
+
 
 # =========================================================
 # WEATHER
@@ -240,10 +394,12 @@ def get_weather(location: str):
     location = location.strip()
 
     if not location:
-        return {"error": "Please enter a location"}
+        return {
+            "error": "Please enter a location"
+        }
 
     # -----------------------------------------------------
-    # 1. GEOCODING
+    # 1. GEOCODING WITH OPEN-METEO
     # -----------------------------------------------------
 
     params = urllib.parse.urlencode({
@@ -254,86 +410,150 @@ def get_weather(location: str):
         "countryCode": "IN"
     })
 
-    geo_url = f"https://geocoding-api.open-meteo.com/v1/search?{params}"
+    geo_url = (
+        "https://geocoding-api.open-meteo.com/v1/search"
+        f"?{params}"
+    )
 
     try:
 
-        request = urllib.request.Request(
+        geo_data = open_meteo_request(
             geo_url,
-            headers={
-                "User-Agent": "PRAVA-Agricultural-Intelligence/1.0"
-            }
+            retries=2
         )
 
-        with urllib.request.urlopen(request, timeout=10) as response:
-            geo_data = json.loads(response.read().decode("utf-8"))
-
-        results = geo_data.get("results", [])
+        results = geo_data.get(
+            "results",
+            []
+        )
 
     except Exception as e:
 
-        print("Geocoding error:", repr(e))
+        print(
+            "Geocoding failed:",
+            repr(e)
+        )
 
-        return {
-            "error": "Unable to search this location"
-        }
+        # Try wttr directly if geocoding fails
+        try:
+            return wttr_weather(location)
+
+        except Exception as wttr_error:
+
+            print(
+                "WTTR fallback failed:",
+                repr(wttr_error)
+            )
+
+            return {
+                "error": "Weather service temporarily unavailable"
+            }
 
     if not results:
-        return {
-            "error": f"Location '{location}' not found. Try a city name such as Pune or Kochi."
-        }
 
-    # First Indian matching result
+        # Try direct wttr fallback
+        try:
+            return wttr_weather(location)
+
+        except Exception:
+            return {
+                "error": (
+                    f"Location '{location}' not found. "
+                    "Try a city name such as Pune or Kochi."
+                )
+            }
+
     place = results[0]
 
     latitude = place["latitude"]
     longitude = place["longitude"]
 
     # -----------------------------------------------------
-    # 2. WEATHER
+    # 2. CURRENT WEATHER
     # -----------------------------------------------------
 
     weather_params = urllib.parse.urlencode({
         "latitude": latitude,
         "longitude": longitude,
-        "current": "temperature_2m,relative_humidity_2m,rain",
+        "current": (
+            "temperature_2m,"
+            "relative_humidity_2m,"
+            "rain"
+        ),
         "timezone": "auto"
     })
 
     weather_url = (
-        f"https://api.open-meteo.com/v1/forecast?{weather_params}"
+        "https://api.open-meteo.com/v1/forecast"
+        f"?{weather_params}"
     )
 
     try:
 
-        request = urllib.request.Request(
+        weather_data = open_meteo_request(
             weather_url,
-            headers={
-                "User-Agent": "PRAVA-Agricultural-Intelligence/1.0"
-            }
+            retries=2
         )
-
-        with urllib.request.urlopen(request, timeout=10) as response:
-            weather_data = json.loads(response.read().decode("utf-8"))
 
         current = weather_data["current"]
 
         return {
-            "location": place.get("name", location),
-            "state": place.get("admin1", ""),
-            "country": place.get("country", "India"),
-            "temperature": current["temperature_2m"],
-            "humidity": current["relative_humidity_2m"],
-            "rainfall": current["rain"]
+            "location": place.get(
+                "name",
+                location
+            ),
+            "state": place.get(
+                "admin1",
+                ""
+            ),
+            "country": place.get(
+                "country",
+                "India"
+            ),
+            "temperature": current[
+                "temperature_2m"
+            ],
+            "humidity": current[
+                "relative_humidity_2m"
+            ],
+            "rainfall": current[
+                "rain"
+            ],
+            "source": "Open-Meteo"
         }
 
     except Exception as e:
 
-        print("Weather error:", repr(e))
+        print(
+            "Open-Meteo weather failed:",
+            repr(e)
+        )
 
-        return {
-            "error": "Weather service unavailable"
-        }
+        # -------------------------------------------------
+        # 3. WEATHER FALLBACK
+        # -------------------------------------------------
+
+        try:
+
+            return wttr_weather(
+                location
+            )
+
+        except Exception as wttr_error:
+
+            print(
+                "WTTR weather fallback failed:",
+                repr(wttr_error)
+            )
+
+            return {
+                "error": (
+                    "Weather service temporarily unavailable. "
+                    "Please try again shortly."
+                )
+            }
+
+
 # =========================================================
 # AGRO ADVISORY
 # =========================================================
@@ -354,6 +574,8 @@ You are PRAVA, an AI agricultural advisor for Indian farmers.
 
 Crop: {data.crop}
 Location: {data.location}
+
+Current weather:
 Temperature: {data.temperature} °C
 Humidity: {data.humidity} %
 Rainfall: {data.rainfall} mm
@@ -376,28 +598,38 @@ Keep it short and farmer-friendly.
 
         response = client.interactions.create(
             model=GEMINI_MODEL,
-            input=prompt
+            input=prompt,
+            generation_config={
+                "thinking_level": "minimal"
+            }
         )
 
-        advisory = response.output_text
+        advisory = response.output_text.strip()
 
     except Exception as e:
 
-        print("Gemini Advisory Error:", e)
+        print(
+            "Gemini Advisory Error:",
+            repr(e)
+        )
 
         advisory = json.dumps({
             "status": "Farm conditions analyzed",
             "advice_1": (
-                f"Monitor {data.crop} closely according to current weather."
+                f"Monitor {data.crop} closely "
+                "according to current weather."
             ),
             "advice_2": (
-                "Maintain appropriate soil moisture and avoid unnecessary irrigation."
+                "Maintain appropriate soil moisture "
+                "and avoid unnecessary irrigation."
             ),
             "warning": (
-                "Weather conditions can change quickly; check local forecasts regularly."
+                "Weather conditions can change quickly; "
+                "check local forecasts regularly."
             )
         })
 
     return {
-        "advisory": advisory
+        "advisory": advisory,
+        "model_used": GEMINI_MODEL
     }
