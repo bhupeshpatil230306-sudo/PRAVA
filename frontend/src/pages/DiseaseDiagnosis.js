@@ -40,17 +40,12 @@ function DiseaseDiagnosis() {
 
       const data = await response.json();
 
-      try {
-        setResult(JSON.parse(data.diagnosis));
-      } catch {
-        setResult({
-          crop: "Unknown",
-          condition: "Unclear",
-          symptoms: data.diagnosis,
-          action_1: "Consult a local agricultural expert.",
-          action_2: "Try uploading a clearer leaf image.",
-        });
-      }
+const diagnosis =
+  typeof data.diagnosis === "string"
+    ? JSON.parse(data.diagnosis)
+    : data.diagnosis;
+
+setResult(diagnosis);
     } catch {
       alert("Unable to connect to PRAVA AI.");
     }
