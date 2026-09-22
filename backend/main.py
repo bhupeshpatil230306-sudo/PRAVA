@@ -20,7 +20,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-GEMINI_MODEL = "gemini-3.6-flash"
+GEMINI_MODEL = "gemini-2.5-flash-lite"
 
 # =========================================================
 # APP
@@ -179,7 +179,7 @@ If no disease is visible, use "Healthy".
     try:
 
         response = client.interactions.create(
-            model="gemini-3.8-flash",
+            model="gemini-2.5-flash-lite",
             input=[
                 {
                     "type": "image",
